@@ -1,4 +1,15 @@
-vim.g.have_nerd_font = false
+local function check_nerd_font_installed()
+  local status_ok, devicons = pcall(require, "nvim-web-devicons")
+  if status_ok and devicons.has_loaded() then
+      return true
+  else
+      -- You can also add extra checks based on environment variables or config
+      return false
+  end
+end
+
+-- Set vim.g.have_nerd_font based on whether Nerd Font is installed
+vim.g.have_nerd_font = check_nerd_font_installed()
 
 vim.opt.number = true
 vim.opt.relativenumber = true
