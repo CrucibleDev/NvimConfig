@@ -1,11 +1,28 @@
 local function check_nerd_font_installed()
-  local status_ok, devicons = pcall(require, "nvim-web-devicons")
-  if status_ok and devicons.has_loaded() then
-      return true
-  else
-      -- You can also add extra checks based on environment variables or config
-      return false
-  end
+  -- Use a character from the Nerd Font set (for example, a commonly used glyph)
+  local nerd_font_test_char = ""  -- This is a PowerShell Nerd Font icon
+
+  -- Create a new buffer and window for testing the glyph rendering
+  local buf = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, { nerd_font_test_char })
+  local win = vim.api.nvim_open_win(buf, false, {
+      relative = 'editor',
+      width = 1,
+      height = 1,
+      row = 1,
+      col = 1,
+      style = 'minimal'
+  })
+
+  -- Try to get the displayed contents
+  local displayed_char = vim.fn.strcharpart(vim.fn.getline(1), 0, 1)
+  
+  -- Close the window and buffer after the test
+  vim.api.nvim_win_close(win, true)
+  vim.api.nvim_buf_delete(buf, { force = true })
+
+  -- If the displayed character matches the test character, assume Nerd Font is installed
+  return displayed_char == nerd_font_test_char
 end
 
 -- Set vim.g.have_nerd_font based on whether Nerd Font is installed
