@@ -1,33 +1,32 @@
 return {
     'stevearc/oil.nvim',
+    ---@module 'oil'
+    ---@type oil.SetupOpts
     dependencies = { { "echasnovski/mini.icons", opts = {} } },
     config = function()
-        -- Determine the OS type
-        local os_type = vim.loop.os_uname().sysname
-
         -- Register the custom column for icons
-        local constants = require("oil.constants")
-        local FIELD_TYPE = constants.FIELD_TYPE
-        local FIELD_NAME = constants.FIELD_NAME
+        local os_type = vim.loop.os_uname().sysname
+        if os_type == "Windows_NT" then
+            local constants = require("oil.constants")
+            local FIELD_TYPE = constants.FIELD_TYPE
+            local FIELD_NAME = constants.FIELD_NAME
 
-        require("oil.columns").register("custom_icons", {
-            render = function(entry)
-                if not entry or not entry[FIELD_TYPE] then
-                    return { "❓", "OilIcon" }  -- Return a question mark icon for invalid entries
-                end
+            require("oil.columns").register("custom_icons", {
+                render = function(entry)
+                    if not entry or not entry[FIELD_TYPE] then
+                        return { "❓", "OilIcon" }  -- Return a question mark icon for invalid entries
+                    end
 
-                local field_type = entry[FIELD_TYPE]
-                local icon
+                    local field_type = entry[FIELD_TYPE]
+                    local icon
 
-                -- Set icon based on the file type for Windows
-                if os_type == "Windows_NT" then
+                    -- Set icon based on the file type
                     if field_type == "directory" then
                         icon = "📁"  -- Icon for directories
                     elseif field_type == "file" then
                         local name = entry[FIELD_NAME]
                         if name then
                             local extension = name:match("^.+%.(.+)$")
-
                             -- Set different icons based on file extension
                             if extension == "lua" then
                                 icon = "🌙"  -- Lua files
@@ -123,10 +122,10 @@ return {
                                 icon = "📈"  -- PowerPoint presentations
                             elseif extension == "iso" then
                                 icon = "💾"  -- ISO files
-                            elseif extension == "lnk" then
-                                icon = "🔗"  -- Icon for links or other types
                             elseif extension == "torrent" then
                                 icon = "🌊"  -- Torrent files
+                            elseif extension == "lnk" then
+                                icon = "🔗"  -- Icon for links or other types
                             else
                                 icon = "📄"  -- Default icon for unknown files
                             end
@@ -137,26 +136,22 @@ return {
                         icon = "🔗"  -- Icon for links or other types
                     end
 
-                else
-                    -- Default to mini.icons for non-Windows environments
-                    icon = require('mini.icons').get_icon(entry[FIELD_NAME])
-                end
-
-                return { icon, "OilIcon" }  -- Return icon and highlight group
-            end,
-            parse = function(line) return line:match("^(%S+)%s+(.*)$") end,
-        })
-
-        -- Setup oil.nvim with the custom column
-        require('oil').setup {
-            columns = { 'custom_icons' },  -- Use your custom icon column
-            view_options = {
-                show_hidden = true,
-                is_always_hidden = function(name)
-                    return vim.startswith(name, '..')
+                    return { icon, "OilIcon" }  -- Return icon and highlight group
                 end,
-            },
-        }
+                parse = function(line) return line:match("^(%S+)%s+(.*)$") end,
+            })
+            -- Setup oil.nvim with the custom column
+            require('oil').setup {
+                columns = { 'custom_icons' },  -- Use your custom icon column
+                view_options = {
+                    show_hidden = true,
+                    is_always_hidden = function(name)
+                        return vim.startswith(name, '..')
+                    end,
+                },
+            }
+        end
+
 
         -- Key mapping for opening parent directory
         vim.keymap.set('n', '-', '<CMD>Oil<CR>', { desc = 'Open parent directory' })
