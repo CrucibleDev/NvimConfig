@@ -1,5 +1,4 @@
--- Set vim.g.have_nerd_font based on whether Nerd Font is installed
-vim.g.have_nerd_font = false
+require('Crucible.localsettings')
 
 vim.opt.number = true
 vim.opt.relativenumber = true
